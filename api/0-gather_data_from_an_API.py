@@ -4,7 +4,6 @@
 import sys
 import requests
 
-
 API_URL = "https://jsonplaceholder.typicode.com/"
 
 
