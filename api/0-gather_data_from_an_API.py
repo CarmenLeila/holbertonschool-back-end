@@ -1,24 +1,39 @@
 #!/usr/bin/python3
-""" Script displays on the standard output the employee TODO """
+"""displays on the standard output the employee TODO list"""
 
-import sys
+
 import requests
+import sys
 
-API_URL = "https://jsonplaceholder.typicode.com/"
 
+if __name__ == '__main__':
+    employee_id = int(sys.argv[1])
+    # Get the employee's name
+    employee_url = ("https://jsonplaceholder.typicode.com/users/"
+                    f"{employee_id}")
+    user_response = requests.get(employee_url)
+    user_info = user_response.json()
+    EMPLOYEE_NAME = user_info.get('name')
 
-employee_id = sys.argv[1]
-employee = requests.get(API_URL + "users/{}".format(employee_id)).json()
-todos = requests.get(API_URL + "todos",
-                     params={"userId": employee_id}).json()
-done_tasks = [task for task in todos if task.get("completed") is True]
+    # Get all the tasks of an employee
+    alltasks_url = ("https://jsonplaceholder.typicode.com/users/"
+                    f"{employee_id}/todos")
+    alltasks_response = requests.get(alltasks_url)
+    todos = alltasks_response.json()
 
-print("Employee {} is done with tasks({}/{}):"
-      .format(employee.get("name"), len(done_tasks), len(todos)))
-for task in done_tasks:
-    print("\t {}".format(task.get("title")))
+    # Count the total number of completed tasks and total tasks
+    TOTAL_NUMBER_OF_TASKS = len(todos)
+    count = 0
+    for task in todos:
+        if task.get('completed') is True:
+            count += 1
+    NUMBER_OF_DONE_TASKS = count
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <employee_id>")
-        sys.exit(1)
+    print(
+        f"Employee {EMPLOYEE_NAME} is done with tasks"
+        f"({NUMBER_OF_DONE_TASKS}/{TOTAL_NUMBER_OF_TASKS}):")
+
+    # Print the title of completed tasks
+    for task in todos:
+        if task.get('completed') is True:
+            print(f"\t {task.get('title')}")
